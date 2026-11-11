@@ -1,0 +1,8 @@
+backend/.local_session_secret
+backend/__pycache__/
+backend/routes/__pycache__/
+.env
+.env.*
+!.env.example
+frontend/node_modules/
+frontend/dist/

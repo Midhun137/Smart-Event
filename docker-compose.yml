@@ -1,0 +1,53 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: smartevent_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-midhun}
+      MYSQL_DATABASE: ${DB_NAME:-smartevent}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: smartevent_backend
+    restart: unless-stopped
+    environment:
+      SMARTEVENT_ENV: production
+      SECRET_KEY: ${SECRET_KEY:-smartevent_production_secret_key_2026}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-smartevent}
+      DB_USER: root
+      DB_PASSWORD: ${DB_PASSWORD:-midhun}
+      FRONTEND_ORIGINS: http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173
+    ports:
+      - "5000:5000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: smartevent_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
+

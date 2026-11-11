@@ -1,0 +1,10 @@
+import React, { useState } from 'react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Ticket, Search, MapPin, Menu, X, ArrowUpRight, User, LogOut } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import '../product.css';
+export default function Navbar(){
+ const {user,logout}=useAuth();const navigate=useNavigate();const [open,setOpen]=useState(false);const [query,setQuery]=useState('');
+ const links=[['/events','Discover'],['/quiz','Playroom'],['/rewards','Rewards'],['/my-bookings','My tickets'],...(user?.role==='admin'?[['/admin','Admin']]:[])];
+ return <header className="se-nav"><div className="se-nav-inner"><Link className="se-logo" to="/" aria-label="SmartEvent home"><span><Ticket size={21}/></span>smart<span className="se-logo-light">event</span><i>®</i></Link><nav className="se-desktop-nav" aria-label="Main navigation">{links.map(([to,label])=><NavLink key={to} to={to}>{label}</NavLink>)}</nav><form className="se-nav-search" onSubmit={e=>{e.preventDefault();navigate(`/events?search=${encodeURIComponent(query)}`);}}><Search size={16}/><input aria-label="Search events" placeholder="Find your next plan" value={query} onChange={e=>setQuery(e.target.value)}/></form><Link className="se-city" to="/events?location=Chennai"><MapPin size={15}/>Chennai</Link>{user?<div className="se-user-nav"><Link to="/profile" aria-label="Your profile"><User size={20}/></Link><button onClick={logout} aria-label="Sign out"><LogOut size={17}/></button></div>:<Link className="se-signin" to="/login">Sign in <ArrowUpRight size={14}/></Link>}<button className="se-menu-toggle" aria-label={open?'Close menu':'Open menu'} aria-expanded={open} onClick={()=>setOpen(!open)}>{open?<X/>:<Menu/>}</button></div>{open&&<nav className="se-mobile-nav" aria-label="Mobile navigation">{links.map(([to,label])=><Link to={to} key={to} onClick={()=>setOpen(false)}>{label}<ArrowUpRight size={16}/></Link>)}<Link to="/profile" onClick={()=>setOpen(false)}>Your account</Link></nav>}</header>
+}
